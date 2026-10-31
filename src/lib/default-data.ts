@@ -173,50 +173,6 @@ export const defaultData: Data = {
 				url: 'https://github.com/CircuitRunners/FRC-2025',
 				technologies: [tech('Java', 'https://www.java.com/')],
 				description: { overview: 'Competition robot software for CircuitRunners FRC 1002.' }
-			},
-			{
-				name: '1002DecodeV2',
-				date: '2026',
-				category: 'FTC robotics',
-				url: 'https://github.com/CircuitRunners/1002DecodeV2',
-				technologies: [tech('Java', 'https://www.java.com/')],
-				description: { overview: 'FTC Team 1002 robot code for the DECODE season.' }
-			},
-			{
-				name: '11347-Decode',
-				date: '2025',
-				category: 'FTC robotics',
-				url: 'https://github.com/CircuitRunners/11347-Decode',
-				technologies: [tech('Java', 'https://www.java.com/')],
-				description: { overview: 'FTC 11347 robot code for the DECODE season.' }
-			},
-			{
-				name: 'Transfer-LMS',
-				date: '2026',
-				category: 'Engineering platform',
-				url: 'https://github.com/CircuitRunners/Transfer-LMS',
-				technologies: [tech('Svelte', 'https://svelte.dev/')],
-				description: {
-					overview: 'A learning platform and integrated shop system for FRC and FTC.'
-				}
-			},
-			{
-				name: 'CircuitScout',
-				date: '2026',
-				category: 'Robotics tooling',
-				url: 'https://github.com/CircuitRunners/CircuitScout',
-				technologies: [tech('Shell', 'https://www.gnu.org/software/bash/')],
-				description: {
-					overview: 'Tooling built with the CircuitRunners robotics organization.'
-				}
-			},
-			{
-				name: 'circuitlibrary',
-				date: '2018',
-				category: 'Robotics library',
-				url: 'https://github.com/CircuitRunners/circuitlibrary',
-				technologies: [tech('Java', 'https://www.java.com/')],
-				description: { overview: 'A utility library for CircuitRunners robot code.' }
 			}
 		]
 	}
