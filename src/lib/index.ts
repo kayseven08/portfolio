@@ -8,12 +8,18 @@ export type Data = {
 			tagline?: string[];
 		};
 		info?: {
-
 			techStack: Technology[];
-		}
+		};
 		projects?: ProjectPreview[];
 	};
-	aboutPage?: {};
+	aboutPage?: {
+		eyebrow?: string;
+		title?: string;
+		intro?: string;
+		paragraphs?: string[];
+		stats?: { value: string; label: string }[];
+		focusAreas?: string[];
+	};
 	projectsPage?: {
 		engineeringProjects?: Project[];
 		programmingProjects?: Project[];
@@ -27,7 +33,6 @@ export type Image = {
 	class?: string;
 	css?: string;
 };
-
 
 export type SubHeading = {
 	images?: Image[];
@@ -64,17 +69,18 @@ export type Technology = {
 	url: string;
 	logo?: string;
 };
-export const getData = async (): Promise<Data> =>{ 
-	return (await fetch("https://k7-portfolio.fly.dev/data")).json();
 
-}
-export const setData = async (newData: Data) => {
-	console.log(await (await fetch("https://k7-portfolio.fly.dev/data", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(newData),
-	})).json())
+export const getData = async (): Promise<Data> => {
+	const response = await fetch('/api/data');
+	if (!response.ok) throw new Error('Unable to load portfolio data');
+	return response.json();
 };
 
+export const setData = async (newData: Data) => {
+	const response = await fetch('/api/data', {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(newData)
+	});
+	if (!response.ok) throw new Error('Unable to save portfolio data');
+};

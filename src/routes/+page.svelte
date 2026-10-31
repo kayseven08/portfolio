@@ -1,132 +1,108 @@
 <script lang="ts">
-	import Tooltip from '$lib/Tooltip.svelte';
-	import src from '$lib/images/kesavan.jpeg';
-	import Scrollbar from 'smooth-scrollbar';
 	import { onMount } from 'svelte';
-	import { fly, draw } from 'svelte/transition';
-	import Heading from '$lib/Heading.svelte';
-	import WordGuesser from '$lib/images/WordGuesser.png';
-	import AudioPlayer from '$lib/images/AudioPlayer.png';
-	import PongGame from '$lib/images/PongGame.png';
-	import AnimatedText from '$lib/AnimatedText.svelte';
-	import { goto } from '$app/navigation';
-	import { getData, type Data } from '$lib';
-	import ProjectPreview from '$lib/ProjectPreview.svelte';
-	let data: Data = {
-		homePage: {
-			headline: {
-				tagline: ['']
-			}
-		}
-	};
+	import { getData, type Data, type ProjectPreview } from '$lib';
+
+	let data: Data | undefined;
+	let loading = true;
+
 	onMount(async () => {
-		data = await getData();
-		Scrollbar.init(document.querySelector('#scrollable')!, {
-			damping: 0.1,
-			thumbMinSize: 0,
-			renderByPixels: true,
-			alwaysShowTracks: false
-		});
-		if (data.homePage) {
-			data.homePage?.projects?.sort(
-				(a, b) => (b.date! as unknown as number) - (a.date! as unknown as number)
-			);
-			console.log(data.homePage.projects);
+		try {
+			data = await getData();
+		} finally {
+			loading = false;
 		}
 	});
+
+	$: projects = [...(data?.homePage?.projects ?? [])]
+		.sort((a, b) => Number(b.date ?? 0) - Number(a.date ?? 0))
+		.slice(0, 4);
+
+	const projectUrl = (project: ProjectPreview) =>
+		`/projects/${project.name?.trim().replaceAll(' ', '-')}`;
 </script>
 
-{#await getData()}
-	<h1
-		class="h-[94vh] text-slate-400 overflow-auto scroll-m-8 no-scrollbar::-webkit-scrollbar flex flex-col fixed bg-slate-800 w-screen"
-		id="scrollable"
-	>
-		Loading...
-	</h1>
-{:then something}
-	<div
-		class="h-[94vh] text-slate-400 overflow-auto scroll-m-8 no-scrollbar::-webkit-scrollbar flex flex-col fixed bg-slate-800 w-screen"
-		id="scrollable"
-	>
-		<br />
-		<div
-			class="text-6xl flex flex-col mt-[10%] justify-center items-center border-b-[1px] border-slate-500 pb-[20%]"
-			in:fly={{ y: -100, duration: 1000 }}
-		>
-			{#if data.homePage?.headline}
-				<div class="flex flex-row text-2xl scale-150 pb-6 relative">
+<svelte:head>
+	<title>Kesavan Rangarajan — Engineer & builder</title>
+	<meta
+		name="description"
+		content="The portfolio of Kesavan Rangarajan: software, AI, research, and robotics."
+	/>
+</svelte:head>
+
+<main class="h-[94vh] overflow-y-auto bg-[#0b1020] text-slate-200">
+	{#if loading}
+		<div class="grid h-full place-items-center text-slate-400">Loading portfolio...</div>
+	{:else if data?.homePage?.headline}
+		<section class="relative overflow-hidden px-6 pb-20 pt-16 sm:px-12 lg:px-24">
+			<div class="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl"></div>
+			<div class="pointer-events-none absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"></div>
+			<div class="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.4fr_0.6fr]">
+				<div>
+					<p class="mb-5 font-mono text-sm uppercase tracking-[0.3em] text-cyan-300">
+						Portfolio / 2026
+					</p>
+					<h1 class="max-w-3xl text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
+						{data.homePage.headline.content}
+						<span class="text-cyan-300">{data.homePage.headline.name}</span>
+					</h1>
+					<p class="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+						I build useful systems across software, AI, environmental research, and competitive
+						robotics.
+					</p>
+					<div class="mt-8 flex flex-wrap gap-3">
+						<a class="rounded-full bg-cyan-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200" href="/projects">
+							Explore projects
+						</a>
+						<a class="rounded-full border border-slate-700 px-5 py-3 font-semibold text-slate-300 transition hover:border-cyan-300 hover:text-cyan-300" href="/about-me">
+							About me
+						</a>
+					</div>
+					<div class="mt-10 flex flex-wrap gap-6 text-sm text-slate-400">
+						<span>⌖ {data.homePage.headline.location}</span>
+						<span>Georgia Tech · Computer Engineering</span>
+					</div>
+				</div>
+				<div class="relative mx-auto">
+					<div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-cyan-300 to-violet-500 blur-2xl opacity-30"></div>
 					<img
 						src={data.homePage.headline.imgURL}
 						alt="Kesavan Rangarajan"
-						class="rounded-full text-sm w-16 h-16"
+						class="relative aspect-square w-64 rounded-[2rem] border border-white/20 object-cover shadow-2xl sm:w-80"
 					/>
-					<h1
-						class="ml-4 text-center align-middle h-fit mt-1 rounded-3xl border-[1px] border-slate-500 p-2 transition-all"
-					>
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						{data.homePage.headline.content}
-						<AnimatedText
-							text={data.homePage.headline.name || ''}
-							targeturl="/about-me"
-						/>
-					</h1>
-					<!-- <button
-						class="w-fit h-fit mt-4 ml-1 hover:text-sky-500 transition-all duration-75 peer"
-						data-tooltip-target="location-tooltip"
-						type="button"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="size-6"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-							/>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-							/>
-						</svg>
-					</button> -->
-					<Tooltip
-						content={data.homePage.headline.location ||
-							'Atlanta, Georgia, United States'}
-						tooltip_placement="w-[800%] -top-[60%] -right-[350%]"
-					></Tooltip>
 				</div>
-				{#each data.homePage.headline.tagline || [] as text, i}
-					<span
-						class="font-bold {i == 0 ? 'text-sky-500' : ''} {i == 1
-							? 'text-rose-200'
-							: ''} {i == 2 ? 'text-violet-600' : ''} mb-3 cursor-default"
-						>{text}</span
+			</div>
+		</section>
+
+		<section class="mx-auto max-w-6xl px-6 pb-20 sm:px-12 lg:px-24">
+			<div class="mb-8 flex items-end justify-between border-b border-slate-800 pb-4">
+				<div>
+					<p class="font-mono text-sm text-cyan-300">Selected work</p>
+					<h2 class="mt-2 text-3xl font-bold">Things I’m building</h2>
+				</div>
+				<a class="hidden text-sm text-slate-400 hover:text-cyan-300 sm:block" href="/projects">View all →</a>
+			</div>
+			<div class="grid gap-4 md:grid-cols-2">
+				{#each projects as project, i}
+					<a
+						href={projectUrl(project)}
+						class="group rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition hover:-translate-y-1 hover:border-cyan-300/60 hover:bg-slate-900"
 					>
+						<div class="flex items-start justify-between gap-4">
+							<span class="font-mono text-sm text-cyan-300">0{i + 1}</span>
+							<span class="text-sm text-slate-500">{project.date}</span>
+						</div>
+						<h3 class="mt-8 text-2xl font-semibold group-hover:text-cyan-300">{project.name}</h3>
+						<p class="mt-2 text-slate-400">{project.category}</p>
+						<div class="mt-6 flex flex-wrap gap-2">
+							{#each project.technologies ?? [] as technology}
+								<span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">{technology.name}</span>
+							{/each}
+						</div>
+					</a>
 				{/each}
-			{/if}
-		</div>
-		<div class="ml-[8%] w-[84%] mt-[2%]" id="info"></div>
-		<div class="ml-[8%] w-[84%] mt-[2%]">
-			<h1
-				class="w-full h-fit text-4xl text-violet-600 text-start border-b-2 border-slate-500 pb-4 mb-4"
-			>
-				My Latest Projects
-			</h1>
-			{#if data.homePage?.projects}
-				<div id="projects" class="">
-					{#each data.homePage.projects || [{ name: 'Word Guesser', date: '2022', category: 'Web Dev', technologies: [{ name: 'Svelte', url: 'https://svelte.dev/' }] }] as project, i}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
-						<ProjectPreview {project} length={data.homePage.projects.length} {i}></ProjectPreview>
-					{/each}
-				</div>
-			{/if}
-		</div>
-	</div>
-{/await}
+			</div>
+		</section>
+	{:else}
+		<div class="grid h-full place-items-center text-slate-400">Portfolio data unavailable.</div>
+	{/if}
+</main>

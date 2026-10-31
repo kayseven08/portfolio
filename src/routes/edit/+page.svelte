@@ -9,6 +9,7 @@
 	import { getData, setData, type Data } from '$lib';
 	import Tooltip from '$lib/Tooltip.svelte';
 	import Image from '$lib/Image.svelte';
+	import { defaultData } from '$lib/default-data';
 
 	export let actionData: ActionData;
 	let loggedIn = false;
@@ -63,6 +64,7 @@
 	};
 	onMount(async () => {
 		data = await getData();
+		data.aboutPage ??= structuredClone(defaultData.aboutPage);
 	});
 	// $: console.log(selectedProject);
 	const saveData = async () => {
@@ -121,27 +123,36 @@
 </script>
 
 <div
-	class="h-[94vh] text-slate-400 overflow-auto scroll-m-8 no-scrollbar::-webkit-scrollbar flex flex-col fixed bg-slate-800 w-screen"
+	class="editor-page min-h-[calc(100vh-73px)] overflow-auto bg-[#0b1020] px-5 py-10 text-slate-300 sm:px-8"
 	id="scrollable"
 >
 	{#if !loggedIn}
-		<div class="flex justify-center">
-			<div class="flex flex-col w-1/2 left-1/4 justify-center">
+		<div class="mx-auto flex min-h-[65vh] max-w-md items-center justify-center">
+			<div
+				class="relative w-full rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-cyan-950/20 sm:p-10"
+			>
+				<p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300">
+					Private workspace
+				</p>
+				<h1 class="mt-4 text-3xl font-bold text-white">Edit your portfolio</h1>
+				<p class="mt-3 text-sm leading-6 text-slate-400">
+					Sign in to update the projects and profile content shown on the site.
+				</p>
 				<AnimatedInputLabel
 					name="Username"
-					labelbg="bg-slate-800"
+					labelbg="bg-[#11182d]"
 					bind:value={username}
-					size="scale-110"
+					size=""
 				></AnimatedInputLabel>
 				<AnimatedInputLabel
 					name="Password"
 					type={peek ? 'text' : 'password'}
-					labelbg="bg-slate-800"
+					labelbg="bg-[#11182d]"
 					bind:value={password}
-					size="scale-110"
+					size=""
 				></AnimatedInputLabel>
 				<button
-					class="absolute right-[30%] top-[15.5%]"
+					class="absolute right-10 top-[15.5rem] text-slate-500 transition hover:text-cyan-300"
 					on:click={() => {
 						if (!peek) peek = true;
 						else peek = false;
@@ -185,25 +196,30 @@
 					{/if}
 				</button>
 				<form use:enhance method="post">
-					<input type="text" bind:value={username} class="hidden" name="username" />
+					<input type="email" bind:value={username} class="hidden" name="username" />
 					<input type="password" bind:value={password} class="hidden" name="password" />
 					<button
 						type="submit"
-						class="border bg-transparent w-[75%] relative left-[12.5%] pl-4 pr-4 text-current rounded-md mt-[4%] scale-110 mt[6%]"
+						class="mt-6 w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200"
 						>Log In</button
 					>
 				</form>
 			</div>
 		</div>
 	{:else}
-		<div class="flex flex-col justify-center">
-			<h1 class="text-4xl text-center">Welcome, Admin</h1>
-			<h1 class="text-2xl text-center">Enter Info Below</h1>
+		<div class="mx-auto flex max-w-7xl flex-col">
+			<p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300">
+				Private workspace
+			</p>
+			<h1 class="mt-2 text-4xl font-bold text-white">Portfolio editor</h1>
+			<p class="mt-2 text-slate-400">
+				Update your public content, then save when you’re ready.
+			</p>
 			<div
-				class="w-3/4 h-[48rem] rounded-2xl border-slate-500 border-[1px] left-[12.5%] relative"
+				class="relative mt-8 min-h-[48rem] rounded-3xl border border-white/10 bg-white/[0.03] p-4 shadow-2xl sm:p-6"
 			>
 				<div
-					class="rounded-3xl border-[1px] border-slate-500 w-[25%] h-[5%] left-[37.5%] mt-[1%] relative flex-row flex align-middle justify-center items-center text-sm"
+					class="mx-auto flex w-fit rounded-full border border-white/10 bg-slate-950/50 p-1 text-sm"
 				>
 					<Button name="Home" onclick={() => (selectedPage = 'home')} more="mr-4"
 					></Button>
@@ -525,27 +541,28 @@
 						></Button>
 					{:else if selectedPage === 'projects'}
 						{#if data.projectsPage && data.projectsPage.engineeringProjects && data.projectsPage.programmingProjects}
+							<div class="project-editor-layout">
 							<div
-								class="w-[46%] h-[75%] top-[7.8%] left-[2%] border-slate-500 border-[1px] rounded-2xl absolute flex flex-col overflow-auto"
+								class="project-editor-panel"
 								id="Engineering Projects"
 							>
 								<h1 class="text-2xl text-center">Engineering Projects</h1>
-								<div class="flex flex-col w-full h-fit">
+								<div class="project-editor-list">
 									{#each data.projectsPage.engineeringProjects || [] as project}
 										<!-- svelte-ignore a11y-click-events-have-key-events -->
 										<!-- svelte-ignore a11y-no-static-element-interactions -->
 										<div
-											class="w-[90%] left-[5%] h-full border-slate-500 border-[1px] relative rounded-2xl mt-[2%]"
+											class="project-editor-card"
 										>
 											<input
 												type="text"
 												bind:value={project.name}
-												class="relative right-[28%] w-48 text-xl bg-transparent focus:outline-none pl-2 focus:border-sky-500 transitiona-all duration-200 border-0 border-b"
+												class="project-name"
 											/>
 											<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 											<label
 												for=""
-												class="absolute left-[40%] top-[56%] peer cursor-pointer"
+												class="project-description-label"
 												on:click={() => {
 													if (!project.description)
 														project.description = {
@@ -563,7 +580,7 @@
 												Description
 											</label>
 											<label
-												class="inline-flex items-center cursor-pointer absolute left-[12%] top-[32%]"
+												class="project-completed"
 											>
 												<input
 													type="checkbox"
@@ -580,7 +597,7 @@
 											</label>
 											<!-- svelte-ignore a11y-click-events-have-key-events -->
 											<div
-												class="absolute bg-transparent text-slate-400 left-[35%] rounded-2xl top-[50%] h-[30%] w-[25%] resize-none border-slate-500 border cursor-pointer"
+												class="project-description-box"
 												on:click={() => {
 													if (!project.description)
 														project.description = {
@@ -599,8 +616,8 @@
 												name="Year"
 												bind:value={project.date}
 												labelbg="bg-slate-800"
-												size="ml-2 -bottom-[15%]"
-												mt="mt-[3%]"
+												size="project-year"
+												mt="mt-0"
 												height="w-24"
 												width="w-36"
 											></AnimatedInputLabel>
@@ -608,19 +625,19 @@
 												name="Category"
 												bind:value={project.category}
 												labelbg="bg-slate-800"
-												size="ml-2 left-[68%] -top-[65%]"
-												mt="mt-[3%]"
+												size="project-category"
+												mt="mt-0"
 												height="w-24"
 												width="w-1/4"
 											></AnimatedInputLabel>
 											{#if project.technologies != undefined}
 												<label
 													for=""
-													class="absolute right-[16%] text-md top-[38%]"
+													class="project-technologies-label"
 													>Technologies</label
 												>
 												<div
-													class="absolute border-slate-500 border-[1px] pr-[10%] pb-2 pt-1 w-[36%] h-[30%] overflow-y-visible overflow-x-scroll rounded-2xl right-[2%] bottom-[20%] flex flex-row"
+													class="project-technologies"
 												>
 													{#each project.technologies || [{ name: 'tech', url: '' }, { name: 'somethingnew', url: '' }] as tech}
 														<div
@@ -745,7 +762,7 @@
 												</div>
 											{/if}
 											<button
-												class="absolute top-1 right-[0.125rem] hover:text-red-500"
+												class="project-delete hover:text-red-500"
 												on:click={() => {
 													if (data.projectsPage?.engineeringProjects)
 														data.projectsPage.engineeringProjects =
@@ -806,25 +823,25 @@
 								</button>
 							</div>
 							<div
-								class="w-[46%] h-[75%] top-[7.8%] right-[2%] border-slate-500 border-[1px] rounded-2xl absolute flex flex-col overflow-auto"
+								class="project-editor-panel"
 								id="Programming Projects"
 							>
 								<h1 class="text-2xl text-center">Programming Projects</h1>
-								<div class="flex flex-col w-full h-fit">
+								<div class="project-editor-list">
 									{#each data.projectsPage.programmingProjects || [] as project}
 										<div
-											class="w-[90%] left-[5%] h-full border-slate-500 border-[1px] relative rounded-2xl mt-[2%]"
+											class="project-editor-card"
 										>
 											<input
 												type="text"
 												bind:value={project.name}
-												class="relative right-[28%] w-48 text-xl bg-transparent focus:outline-none pl-2 focus:border-sky-500 transitiona-all duration-200 border-0 border-b"
+												class="project-name"
 											/>
-											<label for="" class="absolute left-[37%] top-[36%]">
+											<label for="" 											class="project-description-label">
 												Description
 											</label>
 											<label
-												class="inline-flex items-center cursor-pointer absolute left-[12%] top-[32%]"
+												class="project-completed"
 											>
 												<input
 													type="checkbox"
@@ -843,7 +860,7 @@
 											<!-- svelte-ignore a11y-click-events-have-key-events -->
 											<label
 												for=""
-												class="absolute left-[40%] top-[56%] peer cursor-pointer"
+												class="project-description-label"
 												on:click={() => {
 													if (!project.description)
 														project.description = {
@@ -863,7 +880,7 @@
 											<!-- svelte-ignore a11y-click-events-have-key-events -->
 											<!-- svelte-ignore a11y-no-static-element-interactions -->
 											<div
-												class="absolute bg-transparent text-slate-400 left-[35%] rounded-2xl top-[50%] h-[30%] w-[25%] resize-none border-slate-500 border cursor-pointer"
+												class="project-description-box"
 												on:click={() => {
 													if (!project.description)
 														project.description = {
@@ -882,8 +899,8 @@
 												name="Year"
 												bind:value={project.date}
 												labelbg="bg-slate-800"
-												size="ml-2 -bottom-[15%]"
-												mt="mt-[3%]"
+												size="project-year"
+												mt="mt-0"
 												height="w-24"
 												width="w-36"
 											></AnimatedInputLabel>
@@ -891,19 +908,19 @@
 												name="Category"
 												bind:value={project.category}
 												labelbg="bg-slate-800"
-												size="ml-2 left-[68%] -top-[65%]"
-												mt="mt-[3%]"
+												size="project-category"
+												mt="mt-0"
 												height="w-24"
 												width="w-1/4"
 											></AnimatedInputLabel>
 											{#if project.technologies != undefined}
 												<label
 													for=""
-													class="absolute right-[16%] text-md top-[38%]"
+													class="project-technologies-label"
 													>Technologies</label
 												>
 												<div
-													class="absolute border-slate-500 border-[1px] pr-[10%] pb-2 pt-1 w-[36%] h-[30%] overflow-y-visible overflow-x-scroll rounded-2xl right-[2%] bottom-[20%] flex flex-row"
+													class="project-technologies"
 												>
 													{#each project.technologies || [{ name: 'tech', url: '' }, { name: 'somethingnew', url: '' }] as tech}
 														<div
@@ -1028,7 +1045,7 @@
 												</div>
 											{/if}
 											<button
-												class="absolute top-1 right-[0.125rem] hover:text-red-500"
+												class="project-delete hover:text-red-500"
 												on:click={() => {
 													if (data.projectsPage?.programmingProjects)
 														data.projectsPage.programmingProjects =
@@ -1095,6 +1112,7 @@
 									await saveData();
 								}}
 							></Button>
+							</div>
 						{/if}
 						<div
 							class="{descriptionPopup
@@ -1641,9 +1659,269 @@
 								</svg>
 							</button>
 						</div>
-					{:else if selectedPage === 'about-me'}{/if}
+					{:else if selectedPage === 'about-me'}
+						{#if data.aboutPage}
+							<div class="mx-auto mt-8 max-w-5xl space-y-6">
+								<div class="border-b border-white/10 pb-5">
+									<p
+										class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300"
+									>
+										About page
+									</p>
+									<h2 class="mt-2 text-2xl font-bold text-white">
+										Tell your story
+									</h2>
+									<p class="mt-2 text-sm text-slate-400">
+										These fields control the public About page.
+									</p>
+								</div>
+								<div class="grid gap-4 md:grid-cols-2">
+									<label class="editor-field">
+										<span>Eyebrow</span>
+										<input bind:value={data.aboutPage.eyebrow} />
+									</label>
+									<label class="editor-field">
+										<span>Title</span>
+										<input bind:value={data.aboutPage.title} />
+									</label>
+								</div>
+								<label class="editor-field">
+									<span>Intro</span>
+									<textarea rows="3" bind:value={data.aboutPage.intro}></textarea>
+								</label>
+								<div class="grid gap-4 md:grid-cols-2">
+									{#if data.aboutPage.paragraphs}
+									{#each data.aboutPage.paragraphs as paragraph, i}
+										<label class="editor-field">
+											<span>Paragraph {i + 1}</span>
+											<textarea
+												rows="6"
+												bind:value={data.aboutPage.paragraphs[i]}
+											></textarea>
+										</label>
+									{/each}
+									{/if}
+								</div>
+								<div class="grid gap-4 md:grid-cols-3">
+									{#if data.aboutPage.stats}
+									{#each data.aboutPage.stats as stat, i}
+										<div
+											class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+										>
+											<label class="editor-field">
+												<span>Stat value</span>
+												<input bind:value={data.aboutPage.stats[i].value} />
+											</label>
+											<label class="editor-field mt-3">
+												<span>Stat label</span>
+												<input bind:value={data.aboutPage.stats[i].label} />
+											</label>
+										</div>
+									{/each}
+									{/if}
+								</div>
+								<div>
+									<p class="mb-3 text-sm font-semibold text-slate-300">
+										Focus areas
+									</p>
+									<div class="grid gap-3 md:grid-cols-2">
+										{#if data.aboutPage.focusAreas}
+										{#each data.aboutPage.focusAreas as area, i}
+											<input
+												class="editor-input"
+												bind:value={data.aboutPage.focusAreas[i]}
+											/>
+										{/each}
+										{/if}
+									</div>
+								</div>
+							</div>
+						{/if}
+					{/if}
 				</div>
 			</div>
+
+			<style>
+				:global(.editor-field) {
+					@apply flex flex-col gap-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500;
+				}
+				:global(.editor-field input),
+				:global(.editor-field textarea),
+				:global(.editor-input) {
+					@apply w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-3 text-sm normal-case tracking-normal text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-300/10;
+				}
+
+				:global(.project-editor-layout) {
+					display: grid;
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+					gap: 1.25rem;
+					position: relative;
+					margin-top: 1.5rem;
+					padding-bottom: 4rem;
+				}
+
+				:global(.project-editor-panel) {
+					position: static;
+					display: flex;
+					min-width: 0;
+					min-height: 34rem;
+					flex-direction: column;
+					overflow: hidden;
+					border: 1px solid rgb(100 116 139 / 0.7);
+					border-radius: 1rem;
+					padding: 1rem;
+				}
+
+				:global(.project-editor-list) {
+					display: flex;
+					flex-direction: column;
+					gap: 1rem;
+					overflow: auto;
+					padding: 0.75rem 0.25rem 1rem;
+				}
+
+				:global(.project-editor-card) {
+					position: relative;
+					display: grid;
+					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+					grid-template-rows: auto auto auto auto;
+					gap: 1rem;
+					min-height: 18rem;
+					width: 100%;
+					flex: 0 0 auto;
+					border: 1px solid rgb(100 116 139 / 0.7);
+					border-radius: 1rem;
+					padding: 1.25rem;
+				}
+
+				:global(.project-name) {
+					position: static !important;
+					grid-column: 1 / -1;
+					width: calc(100% - 2rem);
+					min-width: 0;
+					border: 0;
+					border-bottom: 1px solid rgb(100 116 139 / 0.7);
+					background: transparent;
+					padding: 0.25rem 0;
+					color: white;
+					font-size: 1.125rem;
+					outline: none;
+				}
+
+				:global(.project-completed) {
+					position: static !important;
+					grid-column: 1;
+					grid-row: 2;
+					align-self: center;
+				}
+
+				:global(.project-year),
+				:global(.project-category) {
+					position: static !important;
+					display: block;
+					width: 100% !important;
+					margin: 0 !important;
+					align-self: end;
+				}
+
+				:global(.project-year) {
+					grid-column: 1;
+					grid-row: 3;
+				}
+
+				:global(.project-category) {
+					grid-column: 2;
+					grid-row: 3;
+				}
+
+				:global(.project-description-label) {
+					position: absolute !important;
+					top: 5.65rem;
+					right: 1.25rem;
+					z-index: 1;
+					color: rgb(203 213 225);
+					cursor: pointer;
+				}
+
+				:global(.project-description-box) {
+					position: absolute !important;
+					top: 7.25rem;
+					right: 1.25rem;
+					width: calc(50% - 1.75rem) !important;
+					height: 5.5rem !important;
+					border: 1px solid rgb(100 116 139 / 0.7);
+					border-radius: 0.75rem;
+					cursor: pointer;
+				}
+
+				:global(.project-technologies-label) {
+					grid-column: 1 / -1;
+					position: static !important;
+					margin-top: 0.25rem;
+					color: rgb(203 213 225);
+				}
+
+				:global(.project-technologies) {
+					position: static !important;
+					grid-column: 1 / -1;
+					display: flex;
+					width: 100% !important;
+					min-width: 0;
+					min-height: 3.5rem;
+					max-height: 5.5rem;
+					align-items: flex-start;
+					flex-wrap: wrap;
+					gap: 0.35rem;
+					overflow: auto;
+					border: 1px solid rgb(100 116 139 / 0.7);
+					border-radius: 0.75rem;
+					padding: 0.5rem;
+				}
+
+				:global(.project-technologies > div) {
+					margin: 0;
+					white-space: nowrap;
+				}
+
+				:global(.project-delete) {
+					z-index: 2;
+				}
+
+				@media (max-width: 900px) {
+					:global(.project-editor-layout) {
+						grid-template-columns: 1fr;
+					}
+				}
+
+				@media (max-width: 540px) {
+					:global(.project-editor-card) {
+						grid-template-columns: 1fr;
+						padding: 1rem;
+					}
+
+					:global(.project-year),
+					:global(.project-category),
+					:global(.project-technologies-label),
+					:global(.project-technologies) {
+						grid-column: 1;
+					}
+
+					:global(.project-category) {
+						grid-row: 4;
+					}
+
+					:global(.project-description-label) {
+						top: 9.5rem;
+						left: 1rem;
+					}
+
+					:global(.project-description-box) {
+						top: 11rem;
+						left: 1rem;
+						width: calc(100% - 2rem) !important;
+					}
+				}
+			</style>
 		</div>
 	{/if}
 </div>
